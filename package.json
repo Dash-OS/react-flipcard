@@ -1,36 +1,92 @@
 {
-  "name": "react-flipcard",
-  "version": "0.2.1",
-  "description": "React flip card component",
-  "main": "lib/main.js",
+  "name": "react-flipcard-2",
+  "version": "0.3.0",
+  "description": "React Flip Card - Revamped",
+  "main": "dist/react-flipcard-2.js",
   "scripts": {
-    "test": "rackt test --single-run --browsers Firefox",
-    "start": "rackt server"
+    "test-disabled":
+      "cross-env NODE_ENV=test nyc mocha --recursive --require ./test/setup.js ./test/tests/*.js",
+    "compile": "projectz compile",
+    "posttest": "npm run compile",
+    "prepublish": "npm run build:prod",
+    "build:prod":
+      "cross-env NODE_ENV=production BABEL_ENV=production babel-node config/scripts/build",
+    "build": "rimraf dist && babel-node config/scripts/build",
+    "coverage": "nyc report --reporter=text-lcov | coveralls"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/mzabriskie/react-flipcard.git"
+    "url": "https://github.com/Dash-OS/react-flipcard-2.git"
   },
-  "keywords": [
-    "react-component"
-  ],
-  "author": "Matt Zabriskie",
+  "keywords": ["react-component", "flip-card", "flip"],
+  "author": "Matt Zabriskie, Braden R. Napier",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/mzabriskie/react-flipcard/issues"
+    "url": "https://github.com/Dash-OS/react-flipcard-2/issues"
   },
-  "homepage": "https://github.com/mzabriskie/react-flipcard",
+  "homepage": "https://github.com/Dash-OS/react-flipcard-2",
   "devDependencies": {
+    "app-root-dir": "^1.0.2",
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.0",
+    "babel-eslint": "^8.0.1",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-preset-env": "^1.6.0",
+    "babel-preset-react": "^6.24.1",
+    "babel-preset-stage-0": "^6.24.1",
+    "cross-env": "^5.0.5",
+    "eslint": "^4.7.2",
+    "eslint-config-airbnb": "^15.1.0",
+    "eslint-plugin-babel": "^4.1.2",
+    "projectz": "^1.4.0",
     "rackt-cli": "^0.5.3",
     "react": "^0.14.0",
     "react-addons-test-utils": "^0.14.0",
-    "react-dom": "^0.14.0"
+    "react-dom": "^0.14.0",
+    "rimraf": "^2.6.2",
+    "uglifyjs-webpack-plugin": "^0.4.6",
+    "webpack": "^3.6.0",
+    "webpack-node-externals": "^1.6.0"
   },
   "peerDependencies": {
-    "react": "^0.14.0",
-    "react-dom": "^0.14.0"
+    "react": "^0.14.0 || ^0.15.0 || ^0.16.0",
+    "react-dom": "^0.14.0 || ^0.15.0 || ^0.16.0"
   },
   "dependencies": {
-    "classnames": "^2.2.0"
-  }
+    "classnames": "^2.2.0",
+    "prop-types": "^15.6.0"
+  },
+  "badges": {
+    "list": [
+      "npmversion",
+      "npmdownloads",
+      "daviddm",
+      "travisci",
+      "coveralls",
+      "paypal",
+      "githubfollow",
+      "hackernewssubmit",
+      "redditsubmit",
+      "twittertweet",
+      "githubstar"
+    ],
+    "config": {
+      "paypalURL": "https://paypal.me/bradynapier",
+      "githubUsername": "bradennapier",
+      "githubSlug": "react-flipcard-2"
+    }
+  },
+  "nyc": {
+    "check-coverage": true,
+    "produce-source-map": true,
+    "reporter": ["lcov", "text"],
+    "require": ["babel-register"],
+    "sourceMap": false,
+    "instrument": false
+  },
+  "maintainers": [],
+  "contributors": [
+    "Braden Napier (https://github.com/bradennapier)",
+    "Matt Zabriskie (https://github.com/mzabriskie)"
+  ]
 }

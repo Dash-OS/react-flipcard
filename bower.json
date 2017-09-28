@@ -1,18 +1,15 @@
 {
-  "name": "react-flipcard",
-  "version": "0.2.1",
+  "name": "react-flipcard-2",
+  "version": "0.3.0",
   "homepage": "https://github.com/mzabriskie/react-flipcard",
   "authors": [
+    "Matt Zabriskie",
     "Matt Zabriskie"
   ],
-  "description": "React flip card component",
-  "main": "./dist/react-flipcard.js",
+  "description": "React Flip Card - Revamped",
+  "main": "lib/main.js",
   "keywords": [
-    "react",
-    "react-component",
-    "flip",
-    "card",
-    "animation"
+    "react-component"
   ],
   "license": "MIT",
   "ignore": [

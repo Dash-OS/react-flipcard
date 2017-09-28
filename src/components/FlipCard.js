@@ -1,4 +1,5 @@
-import React, { PropTypes } from 'react';
+import * as React from 'react';
+import PropTypes from 'prop-types';
 import { findDOMNode } from 'react-dom';
 import cx from 'classnames';
 import contains from '../helpers/contains';
@@ -7,10 +8,20 @@ import injectStyle from '../helpers/injectStyle';
 // Auto inject the styles (will only be done once)
 injectStyle();
 
-export default React.createClass({
-  displayName: 'ReactFlipCard',
+class FlipCard extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      hasFocus: false,
+      isFlipped: props.flipped,
+    };
+  }
 
-  propTypes: {
+  timeouts = {};
+
+  ref = {};
+
+  static propTypes = {
     type: PropTypes.string,
     flipped: PropTypes.bool,
     disabled: PropTypes.bool,
@@ -18,48 +29,40 @@ export default React.createClass({
     onKeyDown: PropTypes.func,
     children(props, propName, componentName) {
       const prop = props[propName];
-
       if (React.Children.count(prop) !== 2) {
         return new Error(
-          '`' + componentName + '` ' +
-          'should contain exactly two children. ' +
-          'The first child represents the front of the card. ' +
-          'The second child represents the back of the card.'
+          '`' +
+            componentName +
+            '` ' +
+            'should contain exactly two children. ' +
+            'The first child represents the front of the card. ' +
+            'The second child represents the back of the card.',
         );
       }
-    }
-  },
+    },
+  };
 
-  getDefaultProps() {
-    return {
-      type: 'horizontal',
-      flipped: false,
-      disabled: false
-    };
-  },
-
-  getInitialState() {
-    return {
-      hasFocus: false,
-      isFlipped: this.props.flipped
-    };
-  },
+  static defaultProps = {
+    type: 'hortizontal',
+    flipped: false,
+    disabled: false,
+  };
 
   componentDidMount() {
-    this._hideFlippedSide();
-  },
+    this.hideFlippedSide();
+  }
 
   componentWillReceiveProps(newProps) {
     // Make sure both sides are displayed for animation
     this._showBothSides();
 
     // Wait for display above to take effect
-    setTimeout(() => {
+    this.timeouts.isFlipped = setTimeout(() => {
       this.setState({
-        isFlipped: newProps.flipped
+        isFlipped: newProps.flipped,
       });
-    }, 0);
-  },
+    });
+  }
 
   componentWillUpdate(nextProps, nextState) {
     // If card is flipping to back via props, track element for focus
@@ -69,27 +72,25 @@ export default React.createClass({
       // Indicates that the back of card needs focus
       this.focusBack = true;
     }
-
     // If isFlipped has changed need to notify
     if (this.state.isFlipped !== nextState.isFlipped) {
       this.notifyFlip = true;
     }
-  },
+  }
 
   componentDidUpdate() {
     // If card has flipped to front, and focus is still within the card
     // return focus to the element that triggered flipping to the back.
-    if (!this.props.flipped &&
-         this.focusElement &&
-         contains(findDOMNode(this), document.activeElement)
-       ) {
+    if (
+      !this.props.flipped &&
+      this.focusElement &&
+      contains(findDOMNode(this), document.activeElement)
+    ) {
       this.focusElement.focus();
       this.focusElement = null;
-    }
-    // Direct focus to the back if needed
-    /* eslint brace-style:0 */
-    else if (this.focusBack) {
-      this.refs.back.focus();
+    } else if (this.focusBack) {
+      // Direct focus to the back if needed
+      this.ref.back.focus();
       this.focusBack = false;
     }
 
@@ -100,52 +101,66 @@ export default React.createClass({
     }
 
     // Hide whichever side of the card is down
-    setTimeout(this._hideFlippedSide, 600);
-  },
+    this.timeouts.hideFlipped = setTimeout(this.hideFlippedSide, 600);
+  }
 
-  handleFocus() {
-    if (this.props.disabled) return;
-
-    this.setState({
-      isFlipped: true
-    });
-  },
-
-  handleBlur() {
-    if (this.props.disabled) return;
-
-    this.setState({
-      isFlipped: false
-    });
-  },
-
-  handleKeyDown(e) {
-    if (typeof this.props.onKeyDown === 'function') {
-      this.props.onKeyDown(e);
+  componentWillUnmount() {
+    for (const timeoutID of Object.keys(this.timeouts)) {
+      clearTimeout(this.timeouts[timeoutID]);
     }
-  },
+  }
+
+  handleFocus = () => {
+    if (this.props.disabled) return;
+    this.setState({
+      isFlipped: true,
+    });
+  };
+
+  handleBlur = () => {
+    if (this.props.disabled) return;
+    this.setState({
+      isFlipped: false,
+    });
+  };
+
+  hideFlippedSide = () => {
+    // This prevents the flipped side from being tabbable
+    if (this.props.disabled) {
+      if (this.state.isFlipped) {
+        this.ref.front.style.display = 'none';
+      } else {
+        this.ref.back.style.display = 'none';
+      }
+    }
+  };
+
+  showBothSides = () => {
+    this.ref.front.style.display = '';
+    this.ref.back.style.display = '';
+  };
 
   render() {
     return (
       <div
         className={cx({
-          'ReactFlipCard': true,
+          ReactFlipCard: true,
           'ReactFlipCard--vertical': this.props.type === 'vertical',
           'ReactFlipCard--horizontal': this.props.type !== 'vertical',
           'ReactFlipCard--flipped': this.state.isFlipped,
-          'ReactFlipCard--enabled': !this.props.disabled
+          'ReactFlipCard--enabled': !this.props.disabled,
         })}
         tabIndex={0}
         onFocus={this.handleFocus}
         onBlur={this.handleBlur}
-        onKeyDown={this.handleKeyDown}
+        onKeyDown={this.props.onKeyDown}
       >
-        <div
-          className="ReactFlipCard__Flipper"
-        >
+        <div className="ReactFlipCard__Flipper">
           <div
             className="ReactFlipCard__Front"
-            ref="front"
+            ref={ref => {
+              this.ref.front = ref;
+            }}
             tabIndex={-1}
             aria-hidden={this.state.isFlipped}
           >
@@ -153,7 +168,9 @@ export default React.createClass({
           </div>
           <div
             className="ReactFlipCard__Back"
-            ref="back"
+            ref={ref => {
+              this.ref.back = ref;
+            }}
             tabIndex={-1}
             aria-hidden={!this.state.isFlipped}
           >
@@ -162,21 +179,7 @@ export default React.createClass({
         </div>
       </div>
     );
-  },
-
-  _showBothSides() {
-    this.refs.front.style.display = '';
-    this.refs.back.style.display = '';
-  },
-
-  _hideFlippedSide() {
-    // This prevents the flipped side from being tabbable
-    if (this.props.disabled) {
-      if (this.state.isFlipped) {
-        this.refs.front.style.display = 'none';
-      } else {
-        this.refs.back.style.display = 'none';
-      }
-    }
   }
-});
+}
+
+export default FlipCard;
