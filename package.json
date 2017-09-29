@@ -1,7 +1,7 @@
 {
   "name": "react-flipcard-2",
   "version": "0.3.0",
-  "description": "React Flip Card - Revamped",
+  "description": "React Flip Card - Revamped to work with React 16+",
   "main": "dist/react-flipcard-2.js",
   "scripts": {
     "test-disabled":

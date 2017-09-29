@@ -1,4 +1,4 @@
-#react-flipcard-2
+# React Flipcard (React 16 Version)
 
 <!-- BADGES/ -->
 
